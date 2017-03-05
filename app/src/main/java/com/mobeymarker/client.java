@@ -53,7 +53,6 @@ public class client {
         @FormUrlEncoded
         @POST("controllers/getDriverLocation/")
         Call<retLoc> getDriverLocation(@Field("trip_id") String trip_id, @Field("index") int index);
-
     }
 }
 

@@ -160,7 +160,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
             }
             return false;
         }
-    })
+    });
     /**
      * =======================     The   MAIN  -  H A N D L E R    ==================================
      */
@@ -283,9 +283,13 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         h0.sendEmptyMessage(2); // TODO: Why this gets sent after Thread below ???
 
         loc = getLast();        // Go to user's last location
+        String[] latlng = {null};
+        String tmp0 = PreferenceManager.getDefaultSharedPreferences(this).getString("loc", null);
+        if (tmp0 != null) {
+            latlng = tmp0.split(", ");
+            Log.i("XXX", "Shared Preference latlng: " + String.format("%s", latlng.toString()));
+        }
 
-        String[] latlng = PreferenceManager.getDefaultSharedPreferences(this).getString("loc", null).split(", ");
-        Log.i("XXX", "Shared Preference latlng: " + String.format("%s", latlng.toString()));
 //        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.parseDouble(latlng[0]), Double.parseDouble(latlng[1])), 16.0f));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(-27.932849, 153.382598), 15.0f));
 
@@ -387,7 +391,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
             @Override
             public void run() {
                 long elapsed = time0() - start;
-                float t = interpolator.getInterpolation( (float) elapsed / duration );
+                float t = interpolator.getInterpolation((float) elapsed / duration);
 
 
                 Log.i("XXX", String.format("Elapsed:\t%d\nt:\t%f", elapsed, t));
@@ -419,7 +423,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                     }
                 }
                 h0.sendEmptyMessage(IN_PROGRESS);
-                runOnUiThread(move);// ? But is it going to exit to 'finally' after the move() recursive threads ?
+                h0.post(move);// ? But is it going to exit to 'finally' after the move() recursive threads ?
                 // ? or after first started thread exits ?
 //                    h0.postDelayed(this, updatedTime);
             }
@@ -442,12 +446,15 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         // Save the user's last location to local Shared Preferences.
         Location l = getLast();
 
-        String[] latlng = PreferenceManager.getDefaultSharedPreferences(this)
-                .getString("loc", null).split(", ");
-        Log.i("XXX", "-->\tUser's Last `fusedlocation` latlng:\t");
-        Log.i("XXX", "--->\tLatLng: " + String.format("%s", (latlng.length > 0) ? latlng[0] + ", " + latlng[1] : "null"));
-        Log.i("XXX", String.format("-->\tUser's New `fusedlocation` latlng:\t\n--->\tLatLng: %f, %f",
-                l.getLatitude(), l.getLongitude()));
+        String tmp0 = PreferenceManager.getDefaultSharedPreferences(this).getString("loc", null);
+        String[] latlng = {null};
+        if (tmp0 != null) {
+            latlng = PreferenceManager.getDefaultSharedPreferences(this).getString("loc", null).split(", ");
+            Log.i("XXX", "-->\tUser's Last `fusedlocation` latlng:\t");
+            Log.i("XXX", "--->\tLatLng: " + String.format("%s", (latlng.length > 0) ? latlng[0] + ", " + latlng[1] : "null"));
+            Log.i("XXX", String.format("-->\tUser's New `fusedlocation` latlng:\t\n--->\tLatLng: %f, %f",
+                    l.getLatitude(), l.getLongitude()));
+        }
 
         // Save user's last known LatLng from FusedLocation API.
         // (TODO: Include bearing, velocity..)
